@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="430" viewBox="0 0 800 430" font-family="system-ui,Segoe UI,Helvetica,sans-serif">
+  <rect width="800" height="430" fill="#0f1117"/>
+  <text x="28" y="48" font-size="22" font-weight="800" fill="#e6edf3">live-cursors</text>
+  <text x="28" y="74" font-size="14" fill="#9aa4b2">Real-time multiplayer presence — same canvas, three peers</text>
+  <rect x="28" y="92" width="744" height="240" rx="12" fill="#161b22" stroke="#30363d"/>
+  <!-- cursors -->
+  <g transform="translate(170,150)"><path d="M0 0 L0 22 L7 16 L11 26 L15 24 L11 15 L20 15 Z" fill="#f43f5e"/><rect x="18" y="14" width="48" height="20" rx="6" fill="#f43f5e"/><text x="42" y="28" font-size="11" fill="#fff" text-anchor="middle">Ann</text></g>
+  <g transform="translate(470,210)"><path d="M0 0 L0 22 L7 16 L11 26 L15 24 L11 15 L20 15 Z" fill="#3b82f6"/><rect x="18" y="14" width="48" height="20" rx="6" fill="#3b82f6"/><text x="42" y="28" font-size="11" fill="#fff" text-anchor="middle">Bob</text></g>
+  <g transform="translate(330,270)"><path d="M0 0 L0 22 L7 16 L11 26 L15 24 L11 15 L20 15 Z" fill="#22c55e"/><rect x="18" y="14" width="56" height="20" rx="6" fill="#22c55e"/><text x="46" y="28" font-size="11" fill="#fff" text-anchor="middle">Carol</text></g>
+  <path d="M150 140 Q 260 120 320 270" stroke="#f43f5e33" stroke-width="2" fill="none"/>
+  <path d="M620 130 Q 520 180 470 210" stroke="#3b82f633" stroke-width="2" fill="none"/>
+  <!-- terminal -->
+  <rect x="28" y="346" width="744" height="68" rx="8" fill="#11141b"/>
+  <text font-size="12.5" font-family="SFMono-Regular,monospace" xml:space="preserve">
+    <tspan x="44" y="372" fill="#3fb950">$ npm test</tspan><tspan fill="#7d8590">   # ws server + client reducer</tspan>
+    <tspan x="44" y="394" fill="#3fb950"> ✓ protocol.test.ts (4)   ✓ server.test.ts (3, two-client integration)</tspan>
+    <tspan x="540" y="372" fill="#7d8590">join → presence</tspan>
+    <tspan x="540" y="394" fill="#7d8590">move → moved · close → left</tspan>
+  </text>
+</svg>

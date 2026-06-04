@@ -1,0 +1,51 @@
+import { describe, it, expect, afterEach } from "vitest";
+import { WebSocket } from "ws";
+import { createServer } from "./server";
+import { encode, decode, ServerMessage } from "./protocol";
+
+let stop: (() => Promise<void>) | null = null;
+afterEach(async () => { if (stop) await stop(); stop = null; });
+
+function waitFor(ws: WebSocket, pred: (m: ServerMessage) => boolean): Promise<ServerMessage> {
+  return new Promise((resolve) => {
+    ws.on("message", (raw) => {
+      const m = decode<ServerMessage>(raw.toString());
+      if (m && pred(m)) resolve(m);
+    });
+  });
+}
+
+describe("presence server (integration)", () => {
+  it("broadcasts presence and cursor moves between two clients", async () => {
+    const port = 9100 + Math.floor(Math.random() * 500);
+    const srv = createServer({ port });
+    stop = srv.close;
+
+    const a = new WebSocket(`ws://localhost:${port}`);
+    await new Promise((r) => a.on("open", r));
+    a.send(encode({ t: "join", name: "Ann", color: "#f00" }));
+
+    const b = new WebSocket(`ws://localhost:${port}`);
+    await new Promise((r) => b.on("open", r));
+
+    // B should receive a presence snapshot once it joins
+    const presenceP = waitFor(b, (m) => m.t === "presence");
+    b.send(encode({ t: "join", name: "Bob", color: "#00f" }));
+    const presence: any = await presenceP;
+    expect(presence.peers.length).toBe(2);
+
+    // A moves; B should be told
+    const movedP = waitFor(b, (m) => m.t === "moved");
+    a.send(encode({ t: "move", cursor: { x: 42, y: 7 } }));
+    const moved: any = await movedP;
+    expect(moved.cursor).toEqual({ x: 42, y: 7 });
+
+    // A leaves; B should be told
+    const leftP = waitFor(b, (m) => m.t === "left");
+    a.close();
+    await leftP;
+    expect(srv.peers.size).toBe(1);
+
+    b.close();
+  });
+});

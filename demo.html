@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><title>live-cursors demo</title>
+<style>
+  body { margin:0; height:100vh; background:#0f1117; color:#e6edf3; font-family:system-ui; overflow:hidden; cursor:none; }
+  .hint { padding:24px; } .cursor { position:fixed; transform:translate(-2px,-2px); pointer-events:none; transition:left .05s linear, top .05s linear; }
+  .label { font-size:12px; padding:2px 6px; border-radius:6px; color:#fff; white-space:nowrap; }
+</style></head>
+<body>
+  <div class="hint"><h1>live-cursors</h1><p>Open this page in two windows to see real-time cursors.</p></div>
+  <script type="module">
+    import { connect } from "./src/client.ts";
+    const colors = ["#f43f5e","#3b82f6","#22c55e","#eab308","#a855f7"];
+    const me = { name: "User", color: colors[Math.floor(Math.random()*colors.length)] };
+    const layer = document.body;
+    const els = new Map();
+    const client = connect({
+      url: (location.protocol==="https:"?"wss":"ws")+"://"+location.hostname+":8787",
+      name: me.name, color: me.color,
+      onChange(peers, selfId) {
+        for (const p of peers) {
+          if (p.id === selfId || !p.cursor) continue;
+          let el = els.get(p.id);
+          if (!el) { el = document.createElement("div"); el.className="cursor";
+            el.innerHTML = `<svg width="20" height="20"><path d="M0 0 L0 16 L5 12 L8 19 L11 18 L8 11 L14 11 Z" fill="${p.color}"/></svg><div class="label" style="background:${p.color}">${p.name}</div>`;
+            layer.appendChild(el); els.set(p.id, el); }
+          el.style.left = p.cursor.x+"px"; el.style.top = p.cursor.y+"px";
+        }
+      }
+    });
+    addEventListener("mousemove", (e)=> client.move(e.clientX, e.clientY));
+    addEventListener("beforeunload", ()=> client.disconnect());
+  </script>
+</body></html>

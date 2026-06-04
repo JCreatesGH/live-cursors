@@ -1,0 +1,31 @@
+{
+  "name": "live-cursors",
+  "version": "0.1.0",
+  "description": "Real-time multiplayer cursors / presence over WebSockets. Tiny server + client + reducer.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "websocket",
+    "presence",
+    "multiplayer",
+    "cursors",
+    "realtime",
+    "collaboration"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.0",
+    "typescript": "^5.4.0",
+    "@types/ws": "^8.5.0",
+    "@types/node": "^20.0.0"
+  },
+  "author": "Joshua John <josh202@gmail.com>"
+}
