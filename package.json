@@ -1,12 +1,15 @@
 {
   "name": "live-cursors",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Real-time multiplayer cursors / presence over WebSockets. Tiny server + client + reducer.",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "server.js", "demo.html", "README.md", "LICENSE"],
   "scripts": {
     "test": "vitest run",
     "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
     "start": "node server.js"
   },
   "keywords": [

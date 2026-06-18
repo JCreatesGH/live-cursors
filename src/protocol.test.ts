@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { encode, decode, applyServerMessage, nextId, Peer } from "./protocol";
+import { encode, decode, applyServerMessage, nextId, validateClientMessage, Peer } from "./protocol";
 
 const peer = (id: string, x = 0, y = 0): Peer => ({ id, name: id, color: "#f00", cursor: { x, y } });
 
@@ -36,5 +36,34 @@ describe("applyServerMessage", () => {
 describe("nextId", () => {
   it("is unique", () => {
     expect(nextId()).not.toBe(nextId());
+  });
+});
+
+describe("validateClientMessage", () => {
+  it("accepts a well-formed join (with optional room)", () => {
+    expect(validateClientMessage({ t: "join", name: "Ada", color: "#f00" }))
+      .toEqual({ t: "join", name: "Ada", color: "#f00" });
+    expect(validateClientMessage({ t: "join", name: "Ada", color: "#f00", room: "team-1" }))
+      .toEqual({ t: "join", name: "Ada", color: "#f00", room: "team-1" });
+  });
+  it("accepts a numeric move and a leave", () => {
+    expect(validateClientMessage({ t: "move", cursor: { x: 3, y: 4 } }))
+      .toEqual({ t: "move", cursor: { x: 3, y: 4 } });
+    expect(validateClientMessage({ t: "leave" })).toEqual({ t: "leave" });
+  });
+  it("rejects a move with a non-numeric or infinite cursor", () => {
+    expect(validateClientMessage({ t: "move", cursor: { x: "9", y: 1 } })).toBeNull();
+    expect(validateClientMessage({ t: "move", cursor: { x: Infinity, y: 1 } })).toBeNull();
+    expect(validateClientMessage({ t: "move" })).toBeNull();
+  });
+  it("rejects a join with no name, unknown types, and non-objects", () => {
+    expect(validateClientMessage({ t: "join", color: "#f00" })).toBeNull();
+    expect(validateClientMessage({ t: "explode" })).toBeNull();
+    expect(validateClientMessage("nope")).toBeNull();
+    expect(validateClientMessage(null)).toBeNull();
+  });
+  it("truncates an over-long name", () => {
+    const m = validateClientMessage({ t: "join", name: "x".repeat(500), color: "#f00" }) as any;
+    expect(m.name.length).toBe(64);
   });
 });

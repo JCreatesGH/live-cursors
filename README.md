@@ -36,20 +36,32 @@ window.addEventListener("mousemove", (e) => client.move(e.clientX, e.clientY)); 
 
 ```ts
 import { createServer } from "live-cursors";
-createServer({ port: 8787 });          // or { server } to attach to an http.Server
+createServer({ port: 8787, heartbeatMs: 30000 });   // or { server } to attach to an http.Server
 ```
+
+## Rooms
+
+Pass a `room` on join to get independent presence spaces on one server — peers only see (and move alongside) others in the same room:
+
+```ts
+connect({ url, name, color, room: "doc-42", onChange });
+```
+
+Omit it and everyone shares the `"default"` room (backward compatible).
 
 ## Protocol
 
 Client → server: `join` · `move` · `leave`.
 Server → client: `welcome` · `presence` (full snapshot) · `moved` · `left`.
 
-The state is kept in sync by a **pure reducer**, `applyServerMessage(peers, msg)`, so the tricky part is unit-tested with no sockets — and a separate integration test spins up the real server and connects two `ws` clients end-to-end.
+- **Validated input** — the server runs every client message through `validateClientMessage`, so a malformed `move` (non-numeric cursor) or a `join` with no name is dropped instead of being broadcast to peers. Names/colors/rooms are length-capped.
+- **Heartbeat** — a ping/pong loop terminates connections that go silent (a dropped network would otherwise leave a ghost cursor until the TCP timeout) and broadcasts their `left`.
+- **Pure reducer** — `applyServerMessage(peers, msg)` keeps client state in sync, so the tricky part is unit-tested with no sockets; integration tests spin up the real server and connect `ws` clients end-to-end (presence, moves, rooms, heartbeat).
 
 ## Development
 
 ```bash
-npm test          # 7 tests (protocol reducer + two-client integration)
+npm test          # 14 tests (protocol reducer + validation + multi-room/heartbeat integration)
 npm run build     # tsc, clean
 ```
 
